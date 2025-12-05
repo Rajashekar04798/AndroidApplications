@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
     // ✅ ViewModel that talks to Room database
     private val expenseViewModel: ExpenseViewModel by viewModels()
-
+    //checking
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
