@@ -56,8 +56,8 @@ fun DashboardContent(
     innerPadding: PaddingValues
 ) {
     var selectedFilterCategory by remember { mutableStateOf("All Categories") }
-    var showEditExpenseDialog by remember { mutableStateOf(false) }
-    var expenseToEdit by remember { mutableStateOf<Expense?>(null) }
+    //var showEditExpenseDialog by remember { mutableStateOf(false) }
+    //var expenseToEdit by remember { mutableStateOf<Expense?>(null) }
 
     val currentMonthExpenses = expenses.filter {
         val currentMonth = YearMonth.now()
@@ -205,8 +205,9 @@ fun DashboardContent(
                         ExpenseCard(
                             expense = expense,
                             modifier = Modifier.clickable {
-                                expenseToEdit = expense
-                                showEditExpenseDialog = true
+                                //expenseToEdit = expense
+                                //showEditExpenseDialog = true
+                                onEditExpense(expense)
                             }
                         )
                     }
@@ -215,7 +216,7 @@ fun DashboardContent(
         }
     }
 
-    if (showEditExpenseDialog && expenseToEdit != null) {
+   /* if (showEditExpenseDialog && expenseToEdit != null) {
         Dialog(onDismissRequest = { showEditExpenseDialog = false; expenseToEdit = null }) {
             EditExpenseScreen(
                 expense = expenseToEdit!!,
@@ -230,5 +231,5 @@ fun DashboardContent(
                 }
             )
         }
-    }
+    }*/
 }

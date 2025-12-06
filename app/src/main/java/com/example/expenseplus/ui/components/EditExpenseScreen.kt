@@ -32,10 +32,10 @@ import com.example.expenseplus.data.expenseCategories
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditExpenseScreen(expense: Expense, onEditExpense: (Expense) -> Unit, onCancelEdit: () -> Unit) {
-    var amount by remember { mutableStateOf(expense.amount.toString()) }
-    var selectedCategory by remember { mutableStateOf(expense.category) }
-    var remarks by remember { mutableStateOf(expense.remarks ?: "") }
-    var expanded by remember { mutableStateOf(false) }
+    var amount by remember(expense.id) { mutableStateOf(expense.amount.toString()) }
+    var selectedCategory by remember(expense.id) { mutableStateOf(expense.category) }
+    var remarks by remember(expense.id) { mutableStateOf(expense.remarks ?: "") }
+    var expanded by remember(expense.id) { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
