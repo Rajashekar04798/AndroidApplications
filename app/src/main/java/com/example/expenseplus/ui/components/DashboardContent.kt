@@ -20,7 +20,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-//import androidx.compose.material3.ExposedDropdownMenu
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
@@ -56,8 +55,6 @@ fun DashboardContent(
     innerPadding: PaddingValues
 ) {
     var selectedFilterCategory by remember { mutableStateOf("All Categories") }
-    //var showEditExpenseDialog by remember { mutableStateOf(false) }
-    //var expenseToEdit by remember { mutableStateOf<Expense?>(null) }
 
     val currentMonthExpenses = expenses.filter {
         val currentMonth = YearMonth.now()
@@ -98,6 +95,20 @@ fun DashboardContent(
                 )
             }
         }
+
+        // 👇 NEW: link to payment type summary
+        Text(
+            text = "View by Payment Type",
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(top = 8.dp)
+                .clickable {
+                    navController.navigate("payment_type_summary_screen")
+                },
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -191,10 +202,11 @@ fun DashboardContent(
                                 SwipeToDismissBoxValue.EndToStart -> Color.Red
                                 else -> Color.Transparent
                             }
-                            Box(modifier = Modifier
-                                .fillMaxSize()
-                                .background(color)
-                                .padding(horizontal = 20.dp),
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(color)
+                                    .padding(horizontal = 20.dp),
                                 contentAlignment = Alignment.CenterEnd
                             ) {
                                 Icon(Icons.Filled.Delete, "Delete Expense", tint = Color.White)
@@ -205,8 +217,6 @@ fun DashboardContent(
                         ExpenseCard(
                             expense = expense,
                             modifier = Modifier.clickable {
-                                //expenseToEdit = expense
-                                //showEditExpenseDialog = true
                                 onEditExpense(expense)
                             }
                         )
@@ -215,21 +225,4 @@ fun DashboardContent(
             }
         }
     }
-
-   /* if (showEditExpenseDialog && expenseToEdit != null) {
-        Dialog(onDismissRequest = { showEditExpenseDialog = false; expenseToEdit = null }) {
-            EditExpenseScreen(
-                expense = expenseToEdit!!,
-                onEditExpense = { updatedExpense ->
-                    onEditExpense(updatedExpense)
-                    showEditExpenseDialog = false
-                    expenseToEdit = null
-                },
-                onCancelEdit = {
-                    showEditExpenseDialog = false
-                    expenseToEdit = null
-                }
-            )
-        }
-    }*/
 }

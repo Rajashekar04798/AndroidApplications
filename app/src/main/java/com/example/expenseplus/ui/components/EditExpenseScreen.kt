@@ -1,98 +1,116 @@
 package com.example.expenseplus.ui.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.*
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.expenseplus.data.expenseCategories
+import com.example.expenseplus.data.paymentTypes
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditExpenseScreen(expense: Expense, onEditExpense: (Expense) -> Unit, onCancelEdit: () -> Unit) {
+fun EditExpenseScreen(
+    expense: Expense,
+    onEditExpense: (Expense) -> Unit,
+    onCancelEdit: () -> Unit
+) {
     var amount by remember(expense.id) { mutableStateOf(expense.amount.toString()) }
     var selectedCategory by remember(expense.id) { mutableStateOf(expense.category) }
     var remarks by remember(expense.id) { mutableStateOf(expense.remarks ?: "") }
-    var expanded by remember(expense.id) { mutableStateOf(false) }
+
+    // 👇 NEW
+    var selectedPaymentType by remember(expense.id) { mutableStateOf(expense.paymentType) }
+
+    var categoryExpanded by remember { mutableStateOf(false) }
+    var paymentExpanded by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = Modifier.padding(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Edit Expense",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            Text("Edit Expense", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             OutlinedTextField(
                 value = amount,
-                onValueChange = { newValue ->
-                    if (newValue.matches(Regex("^\\d*\\.?\\d*")))
-                        amount = newValue
-                },
+                onValueChange = { if (it.matches(Regex("^\\d*\\.?\\d*"))) amount = it },
                 label = { Text("Amount") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
+
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Category
             ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = {
-                    expanded = !expanded
-                },
-                modifier = Modifier.fillMaxWidth()
+                expanded = categoryExpanded,
+                onExpandedChange = { categoryExpanded = !categoryExpanded }
             ) {
                 OutlinedTextField(
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth(),
+                    modifier = Modifier.menuAnchor().fillMaxWidth(),
                     value = selectedCategory,
-                    onValueChange = {},
                     readOnly = true,
+                    onValueChange = {},
                     label = { Text("Category") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(categoryExpanded) }
                 )
                 ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    expanded = categoryExpanded,
+                    onDismissRequest = { categoryExpanded = false }
                 ) {
-                    expenseCategories.forEach {
-                        DropdownMenuItem(text = { Text(it) }, onClick = {
-                            selectedCategory = it
-                            expanded = false
-                        })
+                    expenseCategories.forEach { cat ->
+                        DropdownMenuItem(
+                            text = { Text(cat) },
+                            onClick = {
+                                selectedCategory = cat
+                                categoryExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 👇 NEW Payment Type
+            ExposedDropdownMenuBox(
+                expanded = paymentExpanded,
+                onExpandedChange = { paymentExpanded = !paymentExpanded }
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                    value = selectedPaymentType,
+                    readOnly = true,
+                    onValueChange = {},
+                    label = { Text("Payment Type") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(paymentExpanded) }
+                )
+                ExposedDropdownMenu(
+                    expanded = paymentExpanded,
+                    onDismissRequest = { paymentExpanded = false }
+                ) {
+                    paymentTypes.forEach { type ->
+                        DropdownMenuItem(
+                            text = { Text(type) },
+                            onClick = {
+                                selectedPaymentType = type
+                                paymentExpanded = false
+                            }
+                        )
                     }
                 }
             }
@@ -102,7 +120,7 @@ fun EditExpenseScreen(expense: Expense, onEditExpense: (Expense) -> Unit, onCanc
             OutlinedTextField(
                 value = remarks,
                 onValueChange = { remarks = it },
-                label = { Text("Remarks (Optional)") },
+                label = { Text("Remarks") },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -110,28 +128,31 @@ fun EditExpenseScreen(expense: Expense, onEditExpense: (Expense) -> Unit, onCanc
 
             Button(
                 onClick = {
-                    val amountDouble = amount.toDoubleOrNull()
-                    if (amountDouble != null) {
+                    val amt = amount.toDoubleOrNull()
+                    if (amt != null) {
                         val updatedExpense = expense.copy(
-                            amount = amountDouble,
+                            amount = amt,
                             category = selectedCategory,
-                            remarks = remarks.ifEmpty { null }
+                            remarks = remarks.ifEmpty { null },
+                            paymentType = selectedPaymentType
                         )
                         onEditExpense(updatedExpense)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = amount.isNotEmpty() && amount.toDoubleOrNull() != null
+                enabled = amount.isNotEmpty()
             ) {
-                Text("Save Changes", style = MaterialTheme.typography.titleMedium)
+                Text("Save Changes")
             }
+
             Spacer(modifier = Modifier.height(8.dp))
+
             Button(
                 onClick = onCancelEdit,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.outlinedButtonColors()
             ) {
-                Text("Cancel", style = MaterialTheme.typography.titleMedium)
+                Text("Cancel")
             }
         }
     }

@@ -3,60 +3,60 @@ package com.example.expenseplus.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import java.time.LocalDate
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.Alignment
 import com.example.expenseplus.data.expenseCategories
+import com.example.expenseplus.data.paymentTypes
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddExpenseScreen(onAddExpense: (amount: Double, category: String, remarks: String?, date: LocalDate) -> Unit) {
+fun AddExpenseScreen(
+    onAddExpense: (Double, String, String?, LocalDate, String) -> Unit
+) {
     var amount by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf(expenseCategories[0]) }
+    var selectedCategory by remember { mutableStateOf(expenseCategories.first()) }
+    var selectedPaymentType by remember { mutableStateOf(paymentTypes.first()) }
     var remarks by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
+    var categoryExpanded by remember { mutableStateOf(false) }
+    var paymentExpanded by remember { mutableStateOf(false) }
+    var date by remember { mutableStateOf(LocalDate.now()) }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = Modifier.padding(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Add New Expense",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+
+            Text("Add Expense", style = MaterialTheme.typography.headlineSmall)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             OutlinedTextField(
                 value = amount,
-                onValueChange = { newValue ->
-                    if (newValue.matches(Regex("^\\d*\\.?\\d*")))
-                        amount = newValue
-                },
+                onValueChange = { if (it.matches(Regex("^\\d*\\.?\\d*"))) amount = it },
                 label = { Text("Amount") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
+
             Spacer(modifier = Modifier.height(16.dp))
 
+            // CATEGORY
             ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = {
-                    expanded = !expanded
-                },
-                modifier = Modifier.fillMaxWidth()
+                expanded = categoryExpanded,
+                onExpandedChange = { categoryExpanded = !categoryExpanded }
             ) {
                 OutlinedTextField(
                     modifier = Modifier
@@ -66,17 +66,53 @@ fun AddExpenseScreen(onAddExpense: (amount: Double, category: String, remarks: S
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Category") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(categoryExpanded) }
                 )
                 ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    expanded = categoryExpanded,
+                    onDismissRequest = { categoryExpanded = false }
                 ) {
-                    expenseCategories.forEach {
-                        DropdownMenuItem(text = { Text(it) }, onClick = {
-                            selectedCategory = it
-                            expanded = false
-                        })
+                    expenseCategories.forEach { cat ->
+                        DropdownMenuItem(
+                            text = { Text(cat) },
+                            onClick = {
+                                selectedCategory = cat
+                                categoryExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 👇 NEW Payment Type
+            ExposedDropdownMenuBox(
+                expanded = paymentExpanded,
+                onExpandedChange = { paymentExpanded = !paymentExpanded }
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    value = selectedPaymentType,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Payment Type") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(paymentExpanded) }
+                )
+                ExposedDropdownMenu(
+                    expanded = paymentExpanded,
+                    onDismissRequest = { paymentExpanded = false }
+                ) {
+                    paymentTypes.forEach { type ->
+                        DropdownMenuItem(
+                            text = { Text(type) },
+                            onClick = {
+                                selectedPaymentType = type
+                                paymentExpanded = false
+                            }
+                        )
                     }
                 }
             }
@@ -94,26 +130,22 @@ fun AddExpenseScreen(onAddExpense: (amount: Double, category: String, remarks: S
 
             Button(
                 onClick = {
-                    val amountDouble = amount.toDoubleOrNull()
-                    if (amountDouble != null) {
-                        val currentDate = LocalDate.now()
-                        onAddExpense(amountDouble, selectedCategory, remarks.ifEmpty { null }, currentDate)
+                    val amt = amount.toDoubleOrNull()
+                    if (amt != null) {
+                        onAddExpense(
+                            amt,
+                            selectedCategory,
+                            remarks.ifEmpty { null },
+                            date,
+                            selectedPaymentType
+                        )
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = amount.isNotEmpty() && amount.toDoubleOrNull() != null
+                enabled = amount.isNotEmpty(),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Add Expense", style = MaterialTheme.typography.titleMedium)
+                Text("Add")
             }
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewAddExpenseScreen() {
-    AddExpenseScreen { amount, category, remarks, date ->
-        println("Amount: $amount, Category: $category, Remarks: $remarks, Date: $date")
-    }
-}
-

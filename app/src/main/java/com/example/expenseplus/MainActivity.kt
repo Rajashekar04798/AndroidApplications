@@ -1,4 +1,3 @@
-// MainActivity.kt
 package com.example.expenseplus
 
 import android.os.Bundle
@@ -20,6 +19,7 @@ import com.example.expenseplus.ui.components.ExpenseCategoryDetailScreen
 import com.example.expenseplus.ui.components.MainScreen
 import com.example.expenseplus.ui.components.MonthlyExpenseGraphScreen
 import com.example.expenseplus.ui.components.MonthlyTransactionsScreen
+import com.example.expenseplus.ui.components.PaymentTypeSummaryScreen   // 👈 NEW IMPORT
 import com.example.expenseplus.ui.theme.ExpensePlusTheme
 import com.example.expenseplus.ui.viewmodel.ExpenseViewModel
 import java.time.LocalDate
@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
     // ✅ ViewModel that talks to Room database
     private val expenseViewModel: ExpenseViewModel by viewModels()
-    //checking
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -102,6 +102,14 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    // 💳 NEW: Payment type summary screen
+                    composable("payment_type_summary_screen") {
+                        PaymentTypeSummaryScreen(
+                            expenses = expenses,
+                            navController = navController
+                        )
+                    }
+
                     // 🔍 If later you add a route for MonthlyExpenseGraphScreen,
                     // you can define another composable here.
                 }
@@ -121,13 +129,15 @@ fun DefaultPreview() {
                     amount = 10.0,
                     category = "Food",
                     remarks = "Dinner",
-                    date = LocalDate.now()
+                    date = LocalDate.now(),
+                    paymentType = "Cash"
                 ),
                 Expense(
                     amount = 20.0,
                     category = "Travel",
                     remarks = "Bus fare",
-                    date = LocalDate.now()
+                    date = LocalDate.now(),
+                    paymentType = "UPI"
                 )
             )
         }

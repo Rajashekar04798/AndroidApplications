@@ -136,19 +136,23 @@ fun MainScreen(
 
     if (showAddExpenseDialog) {
         Dialog(onDismissRequest = { showAddExpenseDialog = false }) {
-            AddExpenseScreen(onAddExpense = { amount, category, remarks, date ->
-                onAddExpenseClick(
-                    Expense(
-                        amount = amount,
-                        category = category,
-                        remarks = remarks,
-                        date = date
+            AddExpenseScreen(
+                onAddExpense = { amount, category, remarks, date, paymentType ->
+                    onAddExpenseClick(
+                        Expense(
+                            amount = amount,
+                            category = category,
+                            remarks = remarks,
+                            date = date,
+                            paymentType = paymentType   // 👈 NEW
+                        )
                     )
-                )
-                showAddExpenseDialog = false
-            })
+                    showAddExpenseDialog = false
+                }
+            )
         }
     }
+
 
     if (showEditExpenseDialog && expenseToEdit != null) {
         Dialog(onDismissRequest = {

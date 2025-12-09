@@ -11,5 +11,6 @@ data class Expense(
     val amount: Double,
     val category: String,
     val remarks: String?,
-    val date: LocalDate
+    val date: LocalDate,
+    val paymentType: String = "Cash"
 )
